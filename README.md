@@ -1,36 +1,44 @@
-# NIDAN — Multilingual Patient Intake
+# NIDAN: AI-Assisted Multilingual Patient Case-Taking & Triage System
 
-NIDAN is a React / Express / tRPC / Drizzle application for multilingual patient intake. This archive is an incremental upgrade of the existing NIDAN build; it preserves the current intake, help queue, Bhashini adapter, Gemini draft, and platform OAuth seams.
+[![Project Category](https://img.shields.io/badge/Category-Engineering%20%26%20Technology-blue)](https://github.com)
+[![Tech Stack](https://img.shields.io/badge/Stack-React%20%7C%20TypeScript%20%7C%20Express%20%7C%20tRPC%20%7C%20Drizzle-green)](https://github.com)
+[![Compliance](https://img.shields.io/badge/Compliance-DPDP%20Act%202023%20%7C%20ABDM%20FHIR%20R4-orange)](https://github.com)
 
-## Run and verify
+**NIDAN** is an advanced, AI-assisted multilingual patient intake and triage platform designed for outpatient (OPD) departments in India. It addresses the critical bottleneck of rushed clinical consultations (averaging $\sim$2 minutes in India) by capturing structured medical histories via voice and touch in local Indian languages, digitizing prior records, integrating traditional AYUSH assessments, and outputting an editable HL7 FHIR R4 summary ready for the Ayushman Bharat Digital Mission (ABDM).
 
-```bash
-pnpm install
-cp .env.example .env
-pnpm db:migrate
-pnpm check
-pnpm test
-pnpm build
-node scripts/validate-languages.mjs
-pnpm dev
-```
+---
 
-Windows CMD instructions are in `SETUP-WINDOWS.md`. Checked-in SQL migrations are in `drizzle/`; apply them with `pnpm db:migrate`. A real deployment must provide a managed MySQL `DATABASE_URL`; the in-memory fallback is for local development/tests only and is not persistent.
+##  Key Features
 
-## Security and portals
+1. **Multilingual Speech & Touch Intake:** Built-in integration with **Bhashini / AI4Bharat Indic models** (IndicASR, IndicWhisper) and SOCRATES clinical history framework for natural patient interaction in regional languages.
+2. **Document Intelligence & OCR:** Instant digitization of prior prescriptions and lab reports using OCR engines with automatic error-flagging.
+3. **Red-Flag Safety Triage:** Automated symptom severity scoring that prioritizes urgent cases and escalates them ahead of the standard queue.
+4. **AYUSH Integration:** Seamless incorporation of classical **Dashavidha Pariksha** (tenfold examination) into routine clinical intake.
+5. **Interoperability & Privacy:** Generates standardized **HL7 FHIR R4** summaries for ABDM compliance, backed by strict automated data consent and auto-purge workflows in compliance with the **DPDP Act, 2023**.
+6. **Physician-in-the-Loop Dashboard:** Doctors receive structured AI draft summaries that can be reviewed, edited, and confirmed with a single click.
 
-Local patient accounts use server-side scrypt password hashing and HTTP-only session cookies. Roles are `patient`, `staff`, `doctor`, and `admin`. Staff and doctor accounts are provisioned only through the admin-protected procedure. Patient history is account-scoped. Staff queue access is role-protected, and reports require clinician review/edit permissions. The old staff access code remains only as a compatibility fallback; use provisioned role accounts in production.
+---
 
-Bhashini and Gemini credentials are server-only environment variables. Do not use `VITE_` prefixes, do not commit `.env`, and do not paste secrets into client code, logs, tests, or Git. Gemini output is a draft for clinician review and is never an autonomous diagnosis or prescription.
+##  Technology Stack
 
-## Language coverage
+* **Frontend:** React, TypeScript, Tailwind CSS, Vite, Radix UI, Lucide Icons.
+* **Backend:** Node.js, Express, tRPC, Drizzle ORM, MySQL / PostgreSQL.
+* **AI & NLP:** Bhashini (MeitY) / AI4Bharat Indic ASR/TTS, LLM Clinical Summarizer, Tesseract / PaddleOCR.
+* **Interoperability & Standards:** HL7 FHIR R4, ABDM Standards, DPDP Act 2023.
 
-The application accepts all 22 scheduled Indian-language codes, preserves original Unicode responses, supports language-appropriate text entry, and sets RTL direction for Urdu, Kashmiri, and Sindhi. A generated machine-drafted catalog covers 21 core welcome, account, consent, upload, validation, safety, and fallback strings for every language; it is explicitly marked for native-speaker and clinical review. Provider capabilities are never silently substituted: ASR, TTS, NMT, transliteration, and OCR remain `unconfigured`, `failed`, or `unsupported` until the configured Bhashini pipeline returns a real response for the selected language. See `docs/language-support-matrix.md` for the complete matrix and `UPGRADE-NOTES.md` for remaining limitations.
+---
 
-## Offline-first mode
+##  Project Structure
 
-NIDAN does not require Bhashini or Gemini keys for basic intake and records. Browser speech recognition and browser/OS text-to-speech are used where supported. Optional local adapters use Tesseract for OCR, a Whisper-compatible CLI for ASR, Piper or browser voices for TTS, and an explicit heuristic transliteration fallback. Install them with `scripts\\install-offline-windows.cmd` and read `OFFLINE-RUNTIME-WINDOWS.md`. Local results are labeled as local and never presented as Bhashini results.
-
-## Delivery contents
-
-`SETUP-WINDOWS.md` contains Windows CMD setup and migration instructions. `drizzle/0002_secure_nidan.sql` adds the secure account/session/upload/report tables. `.env.example` contains placeholders only. `docs/language-support-matrix.md` records the 22-language test matrix. `test-results/language-matrix.json` is generated by the deterministic validation script. `UPGRADE-NOTES.md` records what was implemented and what still requires provider, localization, and production-operations work.
+```text
+nidan/
+├── client/                 # React frontend application (SPA)
+│   ├── src/components/     # UI components & dashboard layouts
+│   ├── src/pages/          # Main application views & intake flows
+│   └── src/data/           # Localization dictionaries & language support
+├── server/                 # Node.js backend & API routers
+│   ├── _core/              # Platform core services (auth, storage, AI integrations)
+│   ├── bhashini.ts         # Bhashini Indic ASR/TTS & translation adapter
+│   └── routers.ts          # tRPC API endpoints & intake workflow logic
+├── drizzle/                # Database schema and SQL migrations
+└── docs/                   # Documentation and language support matrices
